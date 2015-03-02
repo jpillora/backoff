@@ -2,11 +2,11 @@
 
 A simple backoff algorithm in Go (Golang)
 
+[![GoDoc](https://godoc.org/github.com/jpillora/backoff?status.svg)](https://godoc.org/github.com/jpillora/backoff)
+
 # Usage
 
-Starts at `Min`, multiplied by `Factor` every call to
-`Duration()` where it is capped at `Max`. Commonly used
-in conjunction with `time.Sleep(duration)`.
+Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. Used in conjunction with the `time` package.
 
 ``` go
 
