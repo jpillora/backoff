@@ -11,9 +11,9 @@ import (
 //Used in conjunction with the time package.
 type Backoff struct {
 	//Factor is the multiplying factor for each increment step
-	attempts, Factor int
+	attempts, Factor float64
 	//Min and Max are the minimum and maximum values of the counter
-	curr, Min, Max time.Duration
+	Min, Max time.Duration
 }
 
 //Returns the current value of the counter and then
@@ -30,16 +30,16 @@ func (b *Backoff) Duration() time.Duration {
 	if b.Factor == 0 {
 		b.Factor = 2
 	}
-	if b.curr == 0 {
-		b.curr = b.Min
+	//calculate this duration
+	dur := float64(b.Min) * math.Pow(b.Factor, b.attempts)
+	//cap!
+	if dur > float64(b.Max) {
+		return b.Max
 	}
-
-	//calculate next duration in ms
-	ms := float64(b.curr) * math.Pow(float64(b.Factor), float64(b.attempts))
 	//bump attempts count
 	b.attempts++
 	//return as a time.Duration
-	return time.Duration(math.Min(ms, float64(b.Max)))
+	return time.Duration(dur)
 }
 
 //Resets the current value of the counter back to Min
