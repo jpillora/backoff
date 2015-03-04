@@ -4,6 +4,12 @@ A simple backoff algorithm in Go (Golang)
 
 [![GoDoc](https://godoc.org/github.com/jpillora/backoff?status.svg)](https://godoc.org/github.com/jpillora/backoff)
 
+### Install
+
+```
+$ go get -v github.com/jpillora/backoff
+```
+
 # Usage
 
 Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. Used in conjunction with the `time` package.
