@@ -10,9 +10,13 @@ A simple backoff algorithm in Go (Golang)
 $ go get -v github.com/jpillora/backoff
 ```
 
-# Usage
+### Usage
 
 Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. Used in conjunction with the `time` package.
+
+---
+
+**Simple example**
 
 ``` go
 
@@ -39,6 +43,33 @@ fmt.Printf("%s\n", b.Duration())
 400ms
 Reset!
 100ms
+```
+
+---
+
+**Example using `net` package**
+
+``` go
+b := &backoff.Backoff{
+    Max:    5 * time.Minute,
+}
+
+for {
+	conn, err := net.Dial("tcp", "example.com:5309")
+	if err != nil {
+		d := b.Duration()
+		fmt.Printf("%s, reconnecting in %s", err, d)
+		time.Sleep(d)
+		continue
+	}
+	//connected
+	b.Reset()
+	conn.Write([]byte("hello world!"))
+	// ... Read ... Write ... etc
+	conn.Close()
+	//disconnected
+}
+
 ```
 
 #### Credits
