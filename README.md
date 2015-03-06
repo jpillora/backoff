@@ -25,6 +25,7 @@ b := &backoff.Backoff{
 	Min:    100 * time.Millisecond,
 	Max:    10 * time.Second,
 	Factor: 2,
+	Jitter: false,
 }
 
 fmt.Printf("%s\n", b.Duration())
@@ -70,6 +71,47 @@ for {
 	//disconnected
 }
 
+```
+
+**Exmaple using `Jitter`**
+
+Setting `Jitter` adds some randomization to the backoff durations.
+[See amazon's writeup of performance gains using jitter](http://www.awsarchitectureblog.com/2015/03/backoff.html).
+Seeding is not necessary but doing so gives repeatable results.
+
+```go
+import "math/rand"
+
+b := &backoff.Backoff{
+	//These are the defaults
+	Min:    100 * time.Millisecond,
+	Max:    10 * time.Second,
+	Factor: 2,
+	Jitter: true,
+}
+
+rand.Seed(42)
+
+fmt.Printf("%s\n", b.Duration())
+fmt.Printf("%s\n", b.Duration())
+fmt.Printf("%s\n", b.Duration())
+
+fmt.Printf("Reset!\n")
+b.Reset()
+
+fmt.Printf("%s\n", b.Duration())
+fmt.Printf("%s\n", b.Duration())
+fmt.Printf("%s\n", b.Duration())
+```
+
+```
+100ms
+106.600049ms
+281.228155ms
+Reset!
+100ms
+104.381845ms
+214.957989ms
 ```
 
 #### Credits
