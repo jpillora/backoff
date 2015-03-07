@@ -12,11 +12,11 @@ $ go get -v github.com/jpillora/backoff
 
 ### Usage
 
-Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. Used in conjunction with the `time` package.
+Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. `Jitter` adds randomness ([see below](#exampleusingjitter)). Used in conjunction with the `time` package.
 
 ---
 
-**Simple example**
+#### Simple example
 
 ``` go
 
@@ -48,7 +48,7 @@ Reset!
 
 ---
 
-**Example using `net` package**
+#### Example using `net` package
 
 ``` go
 b := &backoff.Backoff{
@@ -73,20 +73,16 @@ for {
 
 ```
 
-**Exmaple using `Jitter`**
+---
 
-Setting `Jitter` adds some randomization to the backoff durations.
-[See amazon's writeup of performance gains using jitter](http://www.awsarchitectureblog.com/2015/03/backoff.html).
-Seeding is not necessary but doing so gives repeatable results.
+#### Example using `Jitter`
+
+Enabling `Jitter` adds some randomization to the backoff durations. [See Amazon's writeup of performance gains using jitter](http://www.awsarchitectureblog.com/2015/03/backoff.html). Seeding is not necessary but doing so gives repeatable results.
 
 ```go
 import "math/rand"
 
 b := &backoff.Backoff{
-	//These are the defaults
-	Min:    100 * time.Millisecond,
-	Max:    10 * time.Second,
-	Factor: 2,
 	Jitter: true,
 }
 
