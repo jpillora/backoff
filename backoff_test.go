@@ -50,6 +50,30 @@ func Test3(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Nanosecond)
 }
 
+func TestJitter(t *testing.T) {
+	b := &Backoff{
+		Min:    100 * time.Millisecond,
+		Max:    10 * time.Second,
+		Factor: 2,
+		Jitter: true,
+	}
+
+	equals(t, b.Duration(), 100*time.Millisecond)
+	between(t, b.Duration(), 100*time.Millisecond, 200*time.Millisecond)
+	between(t, b.Duration(), 100*time.Millisecond, 400*time.Millisecond)
+	b.Reset()
+	equals(t, b.Duration(), 100*time.Millisecond)
+}
+
+func between(t *testing.T, actual, low, high time.Duration) {
+	if actual < low {
+		t.Fatalf("Got %s, Expecting >= %s", actual, low)
+	}
+	if actual > high {
+		t.Fatalf("Got %s, Expecting <= %s", actual, high)
+	}
+}
+
 func equals(t *testing.T, d1, d2 time.Duration) {
 	if d1 != d2 {
 		t.Fatalf("Got %s, Expecting %s", d1, d2)

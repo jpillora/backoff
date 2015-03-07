@@ -2,6 +2,7 @@ package backoff
 
 import (
 	"math"
+	"math/rand"
 	"time"
 )
 
@@ -12,6 +13,8 @@ import (
 type Backoff struct {
 	//Factor is the multiplying factor for each increment step
 	attempts, Factor float64
+	//Jitter eases contention by randomizing backoff steps
+	Jitter bool
 	//Min and Max are the minimum and maximum values of the counter
 	Min, Max time.Duration
 }
@@ -32,6 +35,9 @@ func (b *Backoff) Duration() time.Duration {
 	}
 	//calculate this duration
 	dur := float64(b.Min) * math.Pow(b.Factor, b.attempts)
+	if b.Jitter == true {
+		dur = rand.Float64()*(dur-float64(b.Min)) + float64(b.Min)
+	}
 	//cap!
 	if dur > float64(b.Max) {
 		return b.Max
