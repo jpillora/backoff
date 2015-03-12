@@ -1,9 +1,14 @@
 package backoff
 
 import (
+	"errors"
 	"math"
 	"math/rand"
 	"time"
+)
+
+var (
+	ErrMaxAttemptsExceeded = errors.New("maximum number of attempts exceeded")
 )
 
 //Backoff is a time.Duration counter. It starts at Min.
@@ -12,16 +17,22 @@ import (
 //Used in conjunction with the time package.
 type Backoff struct {
 	//Factor is the multiplying factor for each increment step
-	attempts, Factor float64
+	Factor float64
 	//Jitter eases contention by randomizing backoff steps
 	Jitter bool
 	//Min and Max are the minimum and maximum values of the counter
 	Min, Max time.Duration
+	//Max attempts to retry. Duration generates an error after
+	//attempts >= MaxAttempts. Value 0 means no limit
+	attempts, MaxAttempts int
 }
 
 //Returns the current value of the counter and then
 //multiplies it Factor
-func (b *Backoff) Duration() time.Duration {
+func (b *Backoff) Duration() (time.Duration, error) {
+	if b.MaxAttempts > 0 && b.attempts >= b.MaxAttempts {
+		return 0, ErrMaxAttemptsExceeded
+	}
 	//Zero-values are nonsensical, so we use
 	//them to apply defaults
 	if b.Min == 0 {
@@ -34,18 +45,18 @@ func (b *Backoff) Duration() time.Duration {
 		b.Factor = 2
 	}
 	//calculate this duration
-	dur := float64(b.Min) * math.Pow(b.Factor, b.attempts)
+	dur := float64(b.Min) * math.Pow(b.Factor, float64(b.attempts))
 	if b.Jitter == true {
 		dur = rand.Float64()*(dur-float64(b.Min)) + float64(b.Min)
 	}
 	//cap!
 	if dur > float64(b.Max) {
-		return b.Max
+		return b.Max, nil
 	}
 	//bump attempts count
 	b.attempts++
 	//return as a time.Duration
-	return time.Duration(dur)
+	return time.Duration(dur), nil
 }
 
 //Resets the current value of the counter back to Min
