@@ -19,9 +19,7 @@ type Backoff struct {
 	Min, Max time.Duration
 }
 
-//Returns the current value of the counter and then
-//multiplies it Factor
-func (b *Backoff) Duration() time.Duration {
+func (b Backoff) duration() float64 {
 	//Zero-values are nonsensical, so we use
 	//them to apply defaults
 	if b.Min == 0 {
@@ -40,10 +38,29 @@ func (b *Backoff) Duration() time.Duration {
 	}
 	//cap!
 	if dur > float64(b.Max) {
-		return b.Max
+		return float64(b.Max)
 	}
+	return dur
+}
+
+//Returns the current value of the counter and then
+//multiplies it Factor
+func (b *Backoff) Duration() time.Duration {
+	// get duration as float
+	dur := b.duration()
 	//bump attempts count
 	b.attempts++
+	//return as a time.Duration
+	return time.Duration(dur)
+}
+
+//Returns the value of the counter at specified attempt and then
+//multiplies it Factor
+func (b Backoff) DurationForAttempt(attempts float64) time.Duration {
+	// set attempts
+	b.attempts = attempts
+	// get duration as float
+	dur := b.duration()
 	//return as a time.Duration
 	return time.Duration(dur)
 }

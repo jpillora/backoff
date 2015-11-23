@@ -79,3 +79,48 @@ func equals(t *testing.T, d1, d2 time.Duration) {
 		t.Fatalf("Got %s, Expecting %s", d1, d2)
 	}
 }
+
+func Test4(t *testing.T) {
+
+	b := &Backoff{
+		Min:    0,
+		Max:    0,
+		Factor: 0,
+	}
+
+	equals(t, b.Duration(), 100*time.Millisecond)
+	equals(t, b.Duration(), 200*time.Millisecond)
+	equals(t, b.Duration(), 400*time.Millisecond)
+	b.Reset()
+	equals(t, b.Duration(), 100*time.Millisecond)
+}
+
+func Test5(t *testing.T) {
+
+	b := &Backoff{
+		Min:    100 * time.Millisecond,
+		Max:    200 * time.Millisecond,
+		Factor: 2,
+	}
+
+	equals(t, b.Duration(), 100*time.Millisecond)
+	equals(t, b.Duration(), 200*time.Millisecond)
+	equals(t, b.Duration(), 200*time.Millisecond)
+	b.Reset()
+	equals(t, b.Duration(), 100*time.Millisecond)
+}
+
+func Test6(t *testing.T) {
+
+	b := &Backoff{
+		Min:    100 * time.Nanosecond,
+		Max:    10 * time.Second,
+		Factor: 1.75,
+	}
+
+	equals(t, b.DurationForAttempt(0), 100*time.Nanosecond)
+	equals(t, b.DurationForAttempt(1), 175*time.Nanosecond)
+	equals(t, b.DurationForAttempt(2), 306*time.Nanosecond)
+	b.Reset()
+	equals(t, b.DurationForAttempt(0), 100*time.Nanosecond)
+}
