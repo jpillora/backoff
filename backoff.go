@@ -22,6 +22,16 @@ type Backoff struct {
 //Returns the current value of the counter and then
 //multiplies it Factor
 func (b *Backoff) Duration() time.Duration {
+	d := b.ForAttempt(b.attempts)
+	b.attempts++
+	return d
+}
+
+// ForAttempt returns the duration for a specific attempt. This is useful if
+// you have a large number of independent Backoffs, but don't want use
+// unnecessary memory storing the Backoff parameters per Backoff. The first
+// attempt should be 0.
+func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 	//Zero-values are nonsensical, so we use
 	//them to apply defaults
 	if b.Min == 0 {
@@ -34,7 +44,7 @@ func (b *Backoff) Duration() time.Duration {
 		b.Factor = 2
 	}
 	//calculate this duration
-	dur := float64(b.Min) * math.Pow(b.Factor, b.attempts)
+	dur := float64(b.Min) * math.Pow(b.Factor, attempt)
 	if b.Jitter == true {
 		dur = rand.Float64()*(dur-float64(b.Min)) + float64(b.Min)
 	}
@@ -42,8 +52,6 @@ func (b *Backoff) Duration() time.Duration {
 	if dur > float64(b.Max) {
 		return b.Max
 	}
-	//bump attempts count
-	b.attempts++
 	//return as a time.Duration
 	return time.Duration(dur)
 }
