@@ -20,6 +20,21 @@ func Test1(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Millisecond)
 }
 
+func TestForAttempt(t *testing.T) {
+
+	b := &Backoff{
+		Min:    100 * time.Millisecond,
+		Max:    10 * time.Second,
+		Factor: 2,
+	}
+
+	equals(t, b.ForAttempt(0), 100*time.Millisecond)
+	equals(t, b.ForAttempt(1), 200*time.Millisecond)
+	equals(t, b.ForAttempt(2), 400*time.Millisecond)
+	b.Reset()
+	equals(t, b.ForAttempt(0), 100*time.Millisecond)
+}
+
 func Test2(t *testing.T) {
 
 	b := &Backoff{
