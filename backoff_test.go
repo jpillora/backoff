@@ -1,6 +1,7 @@
 package backoff
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -65,6 +66,25 @@ func Test3(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Nanosecond)
 }
 
+func TestGetAttempt(t *testing.T) {
+	b := &Backoff{
+		Min:    100 * time.Millisecond,
+		Max:    10 * time.Second,
+		Factor: 2,
+	}
+	equals(t, b.Attempt(), float64(0))
+	equals(t, b.Duration(), 100*time.Millisecond)
+	equals(t, b.Attempt(), float64(1))
+	equals(t, b.Duration(), 200*time.Millisecond)
+	equals(t, b.Attempt(), float64(2))
+	equals(t, b.Duration(), 400*time.Millisecond)
+	equals(t, b.Attempt(), float64(3))
+	b.Reset()
+	equals(t, b.Attempt(), float64(0))
+	equals(t, b.Duration(), 100*time.Millisecond)
+	equals(t, b.Attempt(), float64(1))
+}
+
 func TestJitter(t *testing.T) {
 	b := &Backoff{
 		Min:    100 * time.Millisecond,
@@ -89,8 +109,8 @@ func between(t *testing.T, actual, low, high time.Duration) {
 	}
 }
 
-func equals(t *testing.T, d1, d2 time.Duration) {
-	if d1 != d2 {
-		t.Fatalf("Got %s, Expecting %s", d1, d2)
+func equals(t *testing.T, v1, v2 interface{}) {
+	if !reflect.DeepEqual(v1, v2) {
+		t.Fatalf("Got %v, Expecting %v", v1, v2)
 	}
 }

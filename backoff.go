@@ -16,7 +16,7 @@ import (
 // are set on the Backoff shared among threads.
 type Backoff struct {
 	//Factor is the multiplying factor for each increment step
-	attempts, Factor float64
+	attempt, Factor float64
 	//Jitter eases contention by randomizing backoff steps
 	Jitter bool
 	//Min and Max are the minimum and maximum values of the counter
@@ -26,8 +26,8 @@ type Backoff struct {
 //Returns the current value of the counter and then
 //multiplies it Factor
 func (b *Backoff) Duration() time.Duration {
-	d := b.ForAttempt(b.attempts)
-	b.attempts++
+	d := b.ForAttempt(b.attempt)
+	b.attempt++
 	return d
 }
 
@@ -65,5 +65,10 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 
 //Resets the current value of the counter back to Min
 func (b *Backoff) Reset() {
-	b.attempts = 0
+	b.attempt = 0
+}
+
+//Get the current backoff attempt
+func (b *Backoff) Attempt() float64 {
+	return b.attempt
 }
