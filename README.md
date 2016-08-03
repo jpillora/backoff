@@ -1,6 +1,6 @@
 # Backoff
 
-A simple backoff algorithm in Go (Golang)
+A simple exponential backoff counter in Go (Golang)
 
 [![GoDoc](https://godoc.org/github.com/jpillora/backoff?status.svg)](https://godoc.org/github.com/jpillora/backoff) [![Circle CI](https://circleci.com/gh/jpillora/backoff.svg?style=shield)](https://circleci.com/gh/jpillora/backoff)
 
@@ -109,6 +109,10 @@ Reset!
 104.381845ms
 214.957989ms
 ```
+
+#### Documentation
+
+https://godoc.org/github.com/jpillora/backoff
 
 #### Credits
 
