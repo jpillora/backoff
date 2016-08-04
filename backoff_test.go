@@ -66,6 +66,16 @@ func Test3(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Nanosecond)
 }
 
+func Test4(t *testing.T) {
+	b := &Backoff{
+		Min: 500 * time.Second,
+		Max: 100 * time.Second,
+		Factor: 1,
+	}
+
+	equals(t, b.Duration(), b.Max)
+}
+
 func TestGetAttempt(t *testing.T) {
 	b := &Backoff{
 		Min:    100 * time.Millisecond,
