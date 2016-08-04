@@ -68,8 +68,8 @@ func Test3(t *testing.T) {
 
 func Test4(t *testing.T) {
 	b := &Backoff{
-		Min: 500 * time.Second,
-		Max: 100 * time.Second,
+		Min:    500 * time.Second,
+		Max:    100 * time.Second,
 		Factor: 1,
 	}
 
