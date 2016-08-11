@@ -39,6 +39,10 @@ func (b *Backoff) Duration() time.Duration {
 // ForAttempt is threadsafe iff non-zero values for Factor, Max, and Min
 // are set before any calls to ForAttempt are made.
 func (b *Backoff) ForAttempt(attempt float64) time.Duration {
+	if float64(b.Min) > float64(b.Max) {
+		return b.Max
+	}
+
 	//Zero-values are nonsensical, so we use
 	//them to apply defaults
 	if b.Min == 0 {
@@ -50,6 +54,7 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 	if b.Factor == 0 {
 		b.Factor = 2
 	}
+
 	//calculate this duration
 	dur := float64(b.Min) * math.Pow(b.Factor, attempt)
 	if b.Jitter == true {
