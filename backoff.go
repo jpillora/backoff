@@ -77,6 +77,17 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 	return dur
 }
 
+// RetryOrCancel returns true (after a pause) if Max is not exceeded and return false (immediately) otherwise
+// It's useful when you don't want to call time.Sleep in your code and want to stop your attempts after Max is exceeded
+func (b *Backoff) RetryOrCancel() bool {
+	dur := b.Duration()
+	if dur >= b.Max {
+		return false
+	}
+	time.Sleep(dur)
+	return true
+}
+
 // Reset restarts the current attempt counter at zero.
 func (b *Backoff) Reset() {
 	b.attempt = 0
