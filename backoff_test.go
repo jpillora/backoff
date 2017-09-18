@@ -110,6 +110,31 @@ func TestJitter(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Millisecond)
 }
 
+func TestRetryOrCancel(t *testing.T) {
+	b := &Backoff{
+		Min:    1 * time.Millisecond,
+		Max:    4 * time.Millisecond,
+		Factor: 2,
+		Jitter: true,
+	}
+
+	if b.RetryOrCancel() != true {
+		t.Fatal("1st RetryOrCancel must return true")
+	}
+	if b.RetryOrCancel() != true {
+		t.Fatal("2nd RetryOrCancel must return true")
+	}
+	if b.RetryOrCancel() != true {
+		t.Fatal("4th RetryOrCancel must return true")
+	}
+	if b.RetryOrCancel() != false {
+		t.Fatal("5th RetryOrCancel must return false")
+	}
+	if b.RetryOrCancel() != false {
+		t.Fatal("6th RetryOrCancel must return false")
+	}
+}
+
 func between(t *testing.T, actual, low, high time.Duration) {
 	if actual < low {
 		t.Fatalf("Got %s, Expecting >= %s", actual, low)
