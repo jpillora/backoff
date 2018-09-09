@@ -110,6 +110,16 @@ func TestJitter(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Millisecond)
 }
 
+func TestCopy(t *testing.T) {
+	b := &Backoff{
+		Min:    100 * time.Millisecond,
+		Max:    10 * time.Second,
+		Factor: 2,
+	}
+	b2 := b.Copy()
+	equals(t, b, b2)
+}
+
 func between(t *testing.T, actual, low, high time.Duration) {
 	if actual < low {
 		t.Fatalf("Got %s, Expecting >= %s", actual, low)
