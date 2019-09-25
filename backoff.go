@@ -4,6 +4,7 @@ package backoff
 import (
 	"math"
 	"math/rand"
+	"sync/atomic"
 	"time"
 )
 
@@ -14,19 +15,20 @@ import (
 // Backoff is not generally concurrent-safe, but the ForAttempt method can
 // be used concurrently.
 type Backoff struct {
-	//Factor is the multiplying factor for each increment step
-	attempt, Factor float64
-	//Jitter eases contention by randomizing backoff steps
+	attempt uint64
+	// Factor is the multiplying factor for each increment step
+	Factor float64
+	// Jitter eases contention by randomizing backoff steps
 	Jitter bool
-	//Min and Max are the minimum and maximum values of the counter
+	// Min and Max are the minimum and maximum values of the counter
 	Min, Max time.Duration
 }
 
 // Duration returns the duration for the current attempt before incrementing
 // the attempt counter. See ForAttempt.
 func (b *Backoff) Duration() time.Duration {
-	d := b.ForAttempt(b.attempt)
-	b.attempt++
+	d := b.ForAttempt(atomic.LoadUint64(&b.attempt))
+	atomic.AddUint64(&b.attempt, 1)
 	return d
 }
 
@@ -38,7 +40,7 @@ const maxInt64 = float64(math.MaxInt64 - 512)
 // attempt should be 0.
 //
 // ForAttempt is concurrent-safe.
-func (b *Backoff) ForAttempt(attempt float64) time.Duration {
+func (b *Backoff) ForAttempt(attempt uint64) time.Duration {
 	// Zero-values are nonsensical, so we use
 	// them to apply defaults
 	min := b.Min
@@ -59,7 +61,7 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 	}
 	//calculate this duration
 	minf := float64(min)
-	durf := minf * math.Pow(factor, attempt)
+	durf := minf * math.Pow(factor, float64(attempt))
 	if b.Jitter {
 		durf = rand.Float64()*(durf-minf) + minf
 	}
@@ -80,12 +82,12 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 
 // Reset restarts the current attempt counter at zero.
 func (b *Backoff) Reset() {
-	b.attempt = 0
+	atomic.StoreUint64(&b.attempt, 0)
 }
 
 // Attempt returns the current attempt counter value.
-func (b *Backoff) Attempt() float64 {
-	return b.attempt
+func (b *Backoff) Attempt() uint64 {
+	return atomic.LoadUint64(&b.attempt)
 }
 
 // Copy returns a backoff with equals constraints as the original

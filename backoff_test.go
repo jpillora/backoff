@@ -83,17 +83,17 @@ func TestGetAttempt(t *testing.T) {
 		Max:    10 * time.Second,
 		Factor: 2,
 	}
-	equals(t, b.Attempt(), float64(0))
+	equals(t, b.Attempt(), uint64(0))
 	equals(t, b.Duration(), 100*time.Millisecond)
-	equals(t, b.Attempt(), float64(1))
+	equals(t, b.Attempt(), uint64(1))
 	equals(t, b.Duration(), 200*time.Millisecond)
-	equals(t, b.Attempt(), float64(2))
+	equals(t, b.Attempt(), uint64(2))
 	equals(t, b.Duration(), 400*time.Millisecond)
-	equals(t, b.Attempt(), float64(3))
+	equals(t, b.Attempt(), uint64(3))
 	b.Reset()
-	equals(t, b.Attempt(), float64(0))
+	equals(t, b.Attempt(), uint64(0))
 	equals(t, b.Duration(), 100*time.Millisecond)
-	equals(t, b.Attempt(), float64(1))
+	equals(t, b.Attempt(), uint64(1))
 }
 
 func TestJitter(t *testing.T) {
@@ -142,6 +142,7 @@ func TestConcurrent(t *testing.T) {
 }
 
 func between(t *testing.T, actual, low, high time.Duration) {
+	t.Helper()
 	if actual < low {
 		t.Fatalf("Got %s, Expecting >= %s", actual, low)
 	}
@@ -151,6 +152,7 @@ func between(t *testing.T, actual, low, high time.Duration) {
 }
 
 func equals(t *testing.T, v1, v2 interface{}) {
+	t.Helper()
 	if !reflect.DeepEqual(v1, v2) {
 		t.Fatalf("Got %v, Expecting %v", v1, v2)
 	}
