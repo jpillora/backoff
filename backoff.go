@@ -27,8 +27,7 @@ type Backoff struct {
 // Duration returns the duration for the current attempt before incrementing
 // the attempt counter. See ForAttempt.
 func (b *Backoff) Duration() time.Duration {
-	d := b.ForAttempt(float64(atomic.LoadUint64(&b.attempt)))
-	atomic.AddUint64(&b.attempt, 1)
+	d := b.ForAttempt(float64(atomic.AddUint64(&b.attempt, 1) - 1))
 	return d
 }
 
