@@ -2,6 +2,7 @@ package backoff
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 )
@@ -120,7 +121,28 @@ func TestCopy(t *testing.T) {
 	equals(t, b, b2)
 }
 
+func TestConcurrent(t *testing.T) {
+	b := &Backoff{
+		Min:    100 * time.Millisecond,
+		Max:    10 * time.Second,
+		Factor: 2,
+	}
+
+	wg := &sync.WaitGroup{}
+
+	test := func() {
+		time.Sleep(b.Duration())
+		wg.Done()
+	}
+
+	wg.Add(2)
+	go test()
+	go test()
+	wg.Wait()
+}
+
 func between(t *testing.T, actual, low, high time.Duration) {
+	t.Helper()
 	if actual < low {
 		t.Fatalf("Got %s, Expecting >= %s", actual, low)
 	}
@@ -130,6 +152,7 @@ func between(t *testing.T, actual, low, high time.Duration) {
 }
 
 func equals(t *testing.T, v1, v2 interface{}) {
+	t.Helper()
 	if !reflect.DeepEqual(v1, v2) {
 		t.Fatalf("Got %v, Expecting %v", v1, v2)
 	}
