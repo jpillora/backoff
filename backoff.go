@@ -16,22 +16,22 @@ import (
 // be used concurrently.
 type Backoff struct {
 	attempt uint64
-	
+
 	// Factor is the multiplying factor for each increment step.
 	//
 	// Defaults to 2.
 	Factor float64
-	
+
 	// Jitter eases contention by randomizing backoff steps.
 	//
 	// Defaults to false.
 	Jitter bool
-	
+
 	// Minimum value of the counter.
 	//
 	// Defaults to 100 milliseconds.
-	Min 
-	
+	Min time.Duration
+
 	// Maximum value of the counter.
 	//
 	// Defaults to 10 seconds.
