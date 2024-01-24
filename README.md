@@ -15,6 +15,12 @@ $ go get -v github.com/jpillora/backoff
 
 Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. `Jitter` adds randomness ([see below](#example-using-jitter)). Used in conjunction with the `time` package.
 
+For a higher-level API, see [Retry](#example-using-retry).
+
+#### Documentation
+
+https://pkg.go.dev/github.com/jpillora/backoff
+
 ---
 
 #### Simple example
@@ -159,9 +165,7 @@ doSomethingWithRetry := func(maxAttempts int) (err error) {
 // call `doSomethingWithRetry`, whenever you want to `doSomething`
 ```
 
-#### Documentation
-
-https://godoc.org/github.com/jpillora/backoff
+---
 
 #### Credits
 
