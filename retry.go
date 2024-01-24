@@ -15,8 +15,8 @@ type Retry struct {
 	Backoff *Backoff
 
 	// Next is the next allowed time. As that suggests, it is set on
-	// [Retry.Allow], each time that function returns a non-zero value.
-	// Another attempt will be allowed if this is a time <= now, or the zero
+	// [Retry.Allow], each time an attempt is allowed.
+	// Another attempt will be allowed if Next is a time <= now, or the zero
 	// value. Mutating this field directly may cause unexpected behavior,
 	// use [Retry.Reset], instead.
 	Next time.Time
