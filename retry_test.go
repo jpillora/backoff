@@ -122,7 +122,10 @@ func ExampleRetry_Allow_backoffBehavior() {
 	attemptAllowAt := func(at time.Duration) {
 		currentAttempt := retry.Backoff.Attempt() - 1
 		currentBackoff := retry.Backoff.ForAttempt(currentAttempt)
-		lastAttempt := retry.Last()
+		var lastAttempt time.Time
+		if retry.Next != (time.Time{}) {
+			lastAttempt = retry.Next.Add(-retry.Backoff.ForAttempt(retry.Backoff.Attempt() - 1))
+		}
 		now := time.Unix(0, int64(at))
 		timeNow = func() time.Time { return now }
 		limitedUntil := retry.Allow()
