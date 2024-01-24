@@ -15,6 +15,12 @@ $ go get -v github.com/jpillora/backoff
 
 Backoff is a `time.Duration` counter. It starts at `Min`. After every call to `Duration()` it is  multiplied by `Factor`. It is capped at `Max`. It returns to `Min` on every call to `Reset()`. `Jitter` adds randomness ([see below](#example-using-jitter)). Used in conjunction with the `time` package.
 
+For a higher-level API, see [Retry](#example-using-retry).
+
+#### Documentation
+
+https://pkg.go.dev/github.com/jpillora/backoff
+
 ---
 
 #### Simple example
@@ -111,9 +117,55 @@ Reset!
 214.957989ms
 ```
 
-#### Documentation
+---
 
-https://godoc.org/github.com/jpillora/backoff
+#### Example using `Retry`
+
+The `Retry` type extends `Backoff` to provide a simpler, higher-level API for implementing exponential backoff/retry logic.
+Here's an example of how you can use it:
+
+```go
+// retry is reused, to maintain state across calls to `doSomethingWithRetry`
+retry := &backoff.Retry{Backoff: &backoff.Backoff{
+	Min:    100 * time.Millisecond,
+	Max:    10 * time.Second,
+	Factor: 2,
+}}
+
+// doSomethingWithRetry enforces a rate limit on calling `doSomething`, which
+// persists across calls to `doSomethingWithRetry`, resetting on success
+doSomethingWithRetry := func(maxAttempts int) (err error) {
+	for attempt := 0; attempt < maxAttempts; {
+		if next := retry.Allow(); next != (time.Time{}) {
+			// if an attempt is not yet allowed, wait until it is
+			time.Sleep(time.Until(next))
+			continue
+		}
+
+		attempt++
+
+		err = doSomething() // the action being attempted
+		if err != nil {
+			// in practice you might have some logging here, or just handle the
+			// returned (last) error
+			continue
+		}
+
+		// success!
+
+		// allow another call immediately, reset attempts
+		retry.Reset()
+
+		return nil
+	}
+
+	return err
+}
+
+// call `doSomethingWithRetry`, whenever you want to `doSomething`
+```
+
+---
 
 #### Credits
 
