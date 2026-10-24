@@ -14,8 +14,9 @@ import (
 //
 // Backoff is not generally concurrent-safe, but the ForAttempt method can
 // be used concurrently.
+// A Backoff must not be copied after first use. Use Copy to copy its constraints.
 type Backoff struct {
-	attempt uint64
+	attempt atomic.Uint64
 
 	// Factor is the multiplying factor for each increment step.
 	//
@@ -41,7 +42,7 @@ type Backoff struct {
 // Duration returns the duration for the current attempt before incrementing
 // the attempt counter. See ForAttempt.
 func (b *Backoff) Duration() time.Duration {
-	d := b.ForAttempt(float64(atomic.AddUint64(&b.attempt, 1) - 1))
+	d := b.ForAttempt(float64(b.attempt.Add(1) - 1))
 	return d
 }
 
@@ -95,12 +96,12 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 
 // Reset restarts the current attempt counter at zero.
 func (b *Backoff) Reset() {
-	atomic.StoreUint64(&b.attempt, 0)
+	b.attempt.Store(0)
 }
 
 // Attempt returns the current attempt counter value.
 func (b *Backoff) Attempt() float64 {
-	return float64(atomic.LoadUint64(&b.attempt))
+	return float64(b.attempt.Load())
 }
 
 // Copy returns a backoff with equals constraints as the original

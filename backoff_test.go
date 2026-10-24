@@ -96,6 +96,23 @@ func TestGetAttempt(t *testing.T) {
 	equals(t, b.Attempt(), float64(1))
 }
 
+func TestEmbeddedBackoff(t *testing.T) {
+	// A preceding 32-bit field must not misalign the atomic attempt counter.
+	// Run this test on 32-bit architectures as well as 64-bit architectures.
+	w := new(struct {
+		prefix uint32
+		Backoff
+	})
+
+	equals(t, w.Attempt(), float64(0))
+	equals(t, w.Duration(), 100*time.Millisecond)
+	equals(t, w.Duration(), 200*time.Millisecond)
+	equals(t, w.Attempt(), float64(2))
+	w.Reset()
+	equals(t, w.Attempt(), float64(0))
+	equals(t, w.Duration(), 100*time.Millisecond)
+}
+
 func TestJitter(t *testing.T) {
 	b := &Backoff{
 		Min:    100 * time.Millisecond,

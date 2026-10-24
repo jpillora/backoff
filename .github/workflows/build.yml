@@ -9,12 +9,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.19.x', 'stable']
+        arch: ['amd64', '386']
+    env:
+      GOARCH: ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: '>=1.17.0'
+          go-version: ${{ matrix.go }}
       - name: Test
         run: |
           go mod download

@@ -7,6 +7,8 @@ A simple exponential backoff counter in Go (Golang)
 
 ### Install
 
+Requires Go 1.19 or later.
+
 ```
 $ go get -v github.com/jpillora/backoff
 ```
