@@ -80,16 +80,12 @@ for {
 
 #### Example using `Jitter`
 
-Enabling `Jitter` adds some randomization to the backoff durations. [See Amazon's writeup of performance gains using jitter](http://www.awsarchitectureblog.com/2015/03/backoff.html). Seeding is not necessary but doing so gives repeatable results.
+Enabling `Jitter` adds some randomization to the backoff durations. [See Amazon's writeup of performance gains using jitter](http://www.awsarchitectureblog.com/2015/03/backoff.html).
 
 ```go
-import "math/rand"
-
 b := &backoff.Backoff{
 	Jitter: true,
 }
-
-rand.Seed(42)
 
 fmt.Printf("%s\n", b.Duration())
 fmt.Printf("%s\n", b.Duration())
@@ -102,6 +98,8 @@ fmt.Printf("%s\n", b.Duration())
 fmt.Printf("%s\n", b.Duration())
 fmt.Printf("%s\n", b.Duration())
 ```
+
+Illustrative output (durations may differ):
 
 ```
 100ms
