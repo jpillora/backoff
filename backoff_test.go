@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Test1(t *testing.T) {
+func TestDurationDoublesAndResets(t *testing.T) {
 
 	b := &Backoff{
 		Min:    100 * time.Millisecond,
@@ -37,7 +37,7 @@ func TestForAttempt(t *testing.T) {
 	equals(t, b.ForAttempt(0), 100*time.Millisecond)
 }
 
-func Test2(t *testing.T) {
+func TestDurationWithFractionalFactor(t *testing.T) {
 
 	b := &Backoff{
 		Min:    100 * time.Millisecond,
@@ -52,7 +52,7 @@ func Test2(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Millisecond)
 }
 
-func Test3(t *testing.T) {
+func TestDurationTruncatesFractionalNanoseconds(t *testing.T) {
 
 	b := &Backoff{
 		Min:    100 * time.Nanosecond,
@@ -67,7 +67,7 @@ func Test3(t *testing.T) {
 	equals(t, b.Duration(), 100*time.Nanosecond)
 }
 
-func Test4(t *testing.T) {
+func TestDurationWithMinimumAboveMaximum(t *testing.T) {
 	b := &Backoff{
 		Min:    500 * time.Second,
 		Max:    100 * time.Second,
